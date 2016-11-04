@@ -1,0 +1,6 @@
+# Compiled source #
+################### 
+*.pyc
+.project
+.pydevproject
+.settings/
