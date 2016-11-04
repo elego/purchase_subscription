@@ -1,0 +1,5 @@
+import product
+import purchase_subscription
+import account_invoice
+import account_analytic_account
+import res_partner
