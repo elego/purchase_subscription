@@ -14,7 +14,7 @@ class AccountAnalyticAccount(models.Model):
     @api.multi
     def _compute_po_subscription_count(self):
         for account in self:
-            account.subscription_count = len(account.po_subscription_ids)
+            account.po_subscription_count = len(account.po_subscription_ids)
 
     @api.multi
     def po_subscriptions_action(self):
