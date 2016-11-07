@@ -7,22 +7,20 @@ class ResPartner(models.Model):
 
     po_subscription_count   = fields.Integer(string='Purchase Subscriptions', compute='_po_subscription_count')
 
+    @api.multi
     def _po_subscription_count(self):
-        subscription_data = self.env['purchase.subscription'].read_group(domain=[('partner_id', 'in', self.ids)],
-                                                                         fields=['partner_id'],
-                                                                         groupby=['partner_id'])
-        mapped_data = dict([(m['partner_id'][0], m['partner_id_count']) for m in subscription_data])
         for partner in self:
-            partner.subscription_count = mapped_data.get(partner.id, 0)
+            partner.po_subscription_count = self.env['purchase.subscription'].search_count([('partner_id', "=", partner.id)])
     
     @api.multi
     def purchase_subscription_action_res_partner(self):
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "purchase.subscription",
-            "views": [[False, "tree"], [False, "form"]],
-            "domain": [["partner_id", "=", active_id]],
-            "context": {"create": False},
-            "name": "Purchase Subscriptions",
-        }
+        for partner in self:
+            return {
+                "type": "ir.actions.act_window",
+                "res_model": "purchase.subscription",
+                "views": [[False, "tree"], [False, "form"]],
+                "domain": [["partner_id", "=", partner.id]],
+                "context": {"create": False},
+                "name": "Purchase Subscriptions",
+            }
     
