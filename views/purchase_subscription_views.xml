@@ -157,12 +157,12 @@
                             <div>
                                 <field name="recurring_invoice_line_ids">
                                     <tree editable="bottom">
-                                        <field name="product_id" context="{'default_recurring_invoice_po': True, 'search_default_filter_recurring_po': True}"/>
+                                        <field name="product_id"/>
                                         <field name="name"/>
                                         <field name="quantity" readonly="1" groups="base.group_no_one"/>
                                         <field name="actual_quantity"/>
                                         <field name="buy_quantity"/>
-                                        <field name="uom_id" groups="product.group_uom" readonly="1"/>
+                                        <field name="uom_id"/>
                                         <field name="price_unit"/>
                                         <field name="discount" groups="sale.group_discount_per_so_line"/>
                                         <field name="price_subtotal"/>

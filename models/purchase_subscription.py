@@ -233,10 +233,10 @@ class PurchaseSubscriptionLine(models.Model):
     _name = "purchase.subscription.line"
     _description = "Purchase Subscription Line"
 
-    product_id          = fields.Many2one('product.product', string='Product', domain="[('recurring_invoice','=',True)]", required=True)
+    product_id          = fields.Many2one('product.product', string='Product', domain="[('recurring_invoice_po','=',True)]", required=True)
     analytic_account_id = fields.Many2one('purchase.subscription', string='Subscription')
     name                = fields.Text(string='Description', required=True)
-    quantity            = fields.Float(compute='_compute_quantity', inverse='_set_quantity', string='Quantity', store=True, help="Max between actual and sold quantities; this quantity will be invoiced")
+    quantity            = fields.Float(compute='_compute_quantity', inverse='_set_quantity', string='Quantity', store=True, help="Max between actual and buy quantities; this quantity will be invoiced")
     actual_quantity     = fields.Float(help="Quantity actually used", default=0.0)
     buy_quantity        = fields.Float(help="Quantity buy", required=True, default=1)
     uom_id              = fields.Many2one('product.uom', string='Unit of Measure', required=True)
@@ -280,13 +280,6 @@ class PurchaseSubscriptionLine(models.Model):
             if product.description_purchase:
                 name += '\n' + product.description_purchase
             self.name = name
-
-    @api.onchange('uom_id')
-    def onchange_uom_id(self):
-        if not self.uom_id:
-            self.price_unit = 0.0
-        else:
-            self.onchange_product_id()
 
 
 class SaleSubscriptionCloseReason(models.Model):
