@@ -44,7 +44,7 @@
         <field name="res_model">purchase.subscription</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form,pivot,graph</field>
-        <field name="context">{}</field>
+        <field name="context">{'default_user_id':uid}</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Click to create a new contract.
@@ -131,7 +131,7 @@
                     </div>
                     <group name="main">
                         <group>
-                        	<label for="partner_id" string="Provider"/>
+                        	<label for="partner_id" domain="[('supplier', '=', True))]"/>
                             <field name="partner_id" required="1" nolabel="1"/>
                             <field name="code"/>
                             <field name="recurring_rule_type"/>
@@ -159,6 +159,7 @@
                                     <tree editable="bottom">
                                         <field name="product_id"/>
                                         <field name="name"/>
+                                        <field name="analytic_account_id"/>
                                         <field name="quantity" readonly="1" groups="base.group_no_one"/>
                                         <field name="actual_quantity"/>
                                         <field name="buy_quantity"/>
@@ -175,15 +176,6 @@
                                     />
                                 </group>
                             </div>
-                        </page>
-                        <page string="Settings" id="settings">
-                            <group>
-                                <field name="tag_ids" string="Plan Change Tags" widget="many2many_tags"
-                                       help="When a customer wants to change his subscription plan, he has the choice between all the recurring contracts with the same tags."/>
-                                <field name="analytic_account_id" readonly="0" required="0"/>
-                            </group>
-                            <group>
-                            </group>
                         </page>
                     </notebook>
                     <div>

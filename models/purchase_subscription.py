@@ -13,15 +13,17 @@ _logger = logging.getLogger(__name__)
 class PurchaseSubscription(models.Model):
     _name = "purchase.subscription"
     _description = "Purchase Subscription"
-    _inherits = {'account.analytic.account': 'analytic_account_id'}
     _inherit = 'mail.thread'
 
+    @api.model
+    def get_user_company(self):
+        return self.env.user.company_id.id
+
     state                       = fields.Selection([('draft', 'New'), ('open', 'In Progress'), ('pending', 'To Renew'), ('close', 'Closed'), ('cancel', 'Cancelled')], string='Status', required=True, copy=False, default='draft')
-    analytic_account_id         = fields.Many2one('account.analytic.account', string='Analytic Account', required=True, ondelete="cascade", auto_join=True)
     date_start                  = fields.Date(string='Start Date', default=fields.Date.today)
     date                        = fields.Date(string='End Date', help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
     currency_id                 = fields.Many2one('res.currency', related='company_id.currency_id', string='Currency', readonly=True)
-    recurring_invoice_line_ids  = fields.One2many('purchase.subscription.line', 'analytic_account_id', string='Invoice Lines', copy=True)
+    recurring_invoice_line_ids  = fields.One2many('purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
     recurring_rule_type         = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), ('yearly', 'Year(s)')], string='Recurrency', help="Invoice automatically repeat at specified interval", required=True, default='monthly')
     recurring_interval          = fields.Integer(string='Repeat Every', help="Repeat every (Days/Week/Month/Year)", required=True, default=1)
     recurring_next_date         = fields.Date(string='Date of Next Invoice', default=fields.Date.today, help="The next invoice will be created on this date then the period will be extended.")
@@ -31,6 +33,17 @@ class PurchaseSubscription(models.Model):
     user_id                     = fields.Many2one('res.users', string='Sales Rep')
     invoice_ids                 = fields.One2many('account.invoice', 'subcription_id')
     invoice_count               = fields.Integer(compute='_compute_invoice_count')
+    partner_id                  = fields.Many2one('res.partner', string="Provider")
+    code                        = fields.Char(string='Reference', index=True, default=lambda self: self.env['ir.sequence'].next_by_code('purchase.subscription') or 'New')
+    user_id                     = fields.Many2one('res.users', string="Purchases Rep")
+    company_id                  = fields.Many2one('res.company', string="Company", required="True", default=get_user_company)
+    name                        = fields.Char(string="Contract", required=True, compute="_get_name", store=True)
+
+
+    @api.depends('code', 'partner_id')
+    def _get_name(self):
+        for sub in self:
+            sub.name = '%s - %s' % (sub.code, sub.partner_id.name) if sub.code else sub.partner_id.name
 
     def _track_subtype(self, init_values):
         self.ensure_one()
@@ -45,12 +58,12 @@ class PurchaseSubscription(models.Model):
 
     @api.depends('recurring_invoice_line_ids')
     def _compute_recurring_total(self):
-        for account in self:
-            account.recurring_total = sum(line.price_subtotal for line in account.recurring_invoice_line_ids)
+        for sub in self:
+            sub.recurring_total = sum(line.price_subtotal for line in sub.recurring_invoice_line_ids)
 
     @api.model
     def create(self, vals):
-        vals['code'] = vals.get('code') or self.env.context.get('default_code') or self.env['ir.sequence'].next_by_code('sale.subscription') or 'New'
+        vals['code'] = vals.get('code') or self.env.context.get('default_code') or self.env['ir.sequence'].next_by_code('purchase.subscription') or 'New'
         if vals.get('name', 'New') == 'New':
             vals['name'] = vals['code']
         return super(PurchaseSubscription, self).create(vals)
@@ -149,12 +162,12 @@ class PurchaseSubscription(models.Model):
             account_id = line.product_id.categ_id.property_account_expense_categ_id.id
         account_id = fiscal_position.map_account(account_id)
 
-        tax = line.product_id.supplier_taxes_id.filtered(lambda r: r.company_id == line.analytic_account_id.company_id)
+        tax = line.product_id.supplier_taxes_id.filtered(lambda r: r.company_id == line.p_subscription_id.company_id)
         tax = fiscal_position.map_tax(tax)
         return {
             'name': line.name,
             'account_id': account_id,
-            'account_analytic_id': line.analytic_account_id.analytic_account_id.id,
+            'account_analytic_id': line.analytic_account_id.id,
             'price_unit': line.price_unit or 0.0,
             'discount': line.discount,
             'quantity': line.quantity,
@@ -234,7 +247,8 @@ class PurchaseSubscriptionLine(models.Model):
     _description = "Purchase Subscription Line"
 
     product_id          = fields.Many2one('product.product', string='Product', domain="[('recurring_invoice_po','=',True)]", required=True)
-    analytic_account_id = fields.Many2one('purchase.subscription', string='Subscription')
+    p_subscription_id   = fields.Many2one('purchase.subscription', string='Subscription')
+    analytic_account_id = fields.Many2one('account.analytic.account', string="Analytic account")
     name                = fields.Text(string='Description', required=True)
     quantity            = fields.Float(compute='_compute_quantity', inverse='_set_quantity', string='Quantity', store=True, help="Max between actual and buy quantities; this quantity will be invoiced")
     actual_quantity     = fields.Float(help="Quantity actually used", default=0.0)
@@ -262,7 +276,7 @@ class PurchaseSubscriptionLine(models.Model):
     @api.onchange('product_id')
     def onchange_product_id(self):
         domain = {}
-        contract = self.analytic_account_id
+        contract = self.p_subscription_id
         company_id = contract.company_id.id
         context = dict(self.env.context, company_id=company_id, force_company=company_id)
         if not self.product_id:
