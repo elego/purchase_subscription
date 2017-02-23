@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <!-- Subscriptions -->
     <record id="purchase_subscription_view_search" model="ir.ui.view">
         <field name="name">purchase.subscription.search</field>
@@ -217,4 +217,4 @@
 
     <menuitem action="product_action_subscription_po" id="menu_purchase_subscription_product" sequence="3" parent="menu_purchase_subscription"/>
 
-</openerp>
+</odoo>

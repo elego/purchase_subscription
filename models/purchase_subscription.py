@@ -2,10 +2,10 @@
 import logging
 from dateutil.relativedelta import relativedelta
 
-from openerp import api, fields, models, _
-from openerp.exceptions import UserError
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
-import openerp.addons.decimal_precision as dp
+import odoo.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
@@ -19,11 +19,16 @@ class PurchaseSubscription(models.Model):
     def get_user_company(self):
         return self.env.user.company_id.id
 
-    state = fields.Selection([('draft', 'New'), ('open', 'In Progress'), ('pending', 'To Renew'), (
-        'close', 'Closed'), ('cancel', 'Cancelled')], string='Status', required=True, copy=False, default='draft')
+    state = fields.Selection([('draft', 'New'),
+                              ('open', 'In Progress'),
+                              ('pending', 'To Renew'),
+                              ('close', 'Closed'),
+                              ('cancel', 'Cancelled')],
+                             string='Status',
+                             required=True, copy=False, default='draft')
     date_start = fields.Date(string='Start Date', default=fields.Date.today)
-    date = fields.Date(
-        string='End Date', help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
+    date = fields.Date(string='End Date',
+                       help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
     currency_id = fields.Many2one('res.currency', string='Currency', 
                                   compute='get_info_partner', store=True, readonly=False)
     recurring_invoice_line_ids = fields.One2many(
@@ -34,8 +39,7 @@ class PurchaseSubscription(models.Model):
         string='Repeat Every', help="Repeat every (Days/Week/Month/Year)", required=True, default=1)
     recurring_next_date = fields.Date(string='Date of Next Invoice', default=fields.Date.today,
                                       help="The next invoice will be created on this date then the period will be extended.")
-    recurring_total = fields.Float(
-        compute='_compute_recurring_total', string="Recurring Price", store=True)
+    recurring_total = fields.Float(compute='_compute_recurring_total', string="Recurring Price", store=True)
     close_reason_id = fields.Many2one(
         "sale.subscription.close.reason", string="Close Reason")
     description = fields.Text()
