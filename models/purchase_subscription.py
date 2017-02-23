@@ -39,7 +39,8 @@ class PurchaseSubscription(models.Model):
         string='Repeat Every', help="Repeat every (Days/Week/Month/Year)", required=True, default=1)
     recurring_next_date = fields.Date(string='Date of Next Invoice', default=fields.Date.today,
                                       help="The next invoice will be created on this date then the period will be extended.")
-    recurring_total = fields.Float(compute='_compute_recurring_total', string="Recurring Price", store=True)
+    recurring_total = fields.Float(
+        compute='_compute_recurring_total', string="Recurring Price", store=True)
     close_reason_id = fields.Many2one(
         "sale.subscription.close.reason", string="Close Reason")
     description = fields.Text()
