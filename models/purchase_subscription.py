@@ -60,7 +60,7 @@ class PurchaseSubscription(models.Model):
     def _track_subtype(self, init_values):
         self.ensure_one()
         if 'state' in init_values:
-            return 'purchase_subcription.subtype_state_change_purchase'
+            return 'purchase_subscription.subtype_state_change_purchase'
         return super(PurchaseSubscription, self)._track_subtype(init_values)
 
     @api.multi
@@ -104,7 +104,7 @@ class PurchaseSubscription(models.Model):
         }
 
     @api.model
-    def cron_purchase_subcription(self):
+    def cron_purchase_subscription(self):
         today = fields.Date.today()
         next_month = fields.Date.to_string(
             fields.Date.from_string(today) + relativedelta(months=1))
