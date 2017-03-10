@@ -19,31 +19,43 @@ class PurchaseSubscription(models.Model):
     def get_user_company(self):
         return self.env.user.company_id.id
 
-    state                       = fields.Selection([('draft', 'New'), ('open', 'In Progress'), ('pending', 'To Renew'), ('close', 'Closed'), ('cancel', 'Cancelled')], string='Status', required=True, copy=False, default='draft')
-    date_start                  = fields.Date(string='Start Date', default=fields.Date.today)
-    date                        = fields.Date(string='End Date', help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
-    currency_id                 = fields.Many2one('res.currency', related='company_id.currency_id', string='Currency', readonly=True)
-    recurring_invoice_line_ids  = fields.One2many('purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
-    recurring_rule_type         = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), ('yearly', 'Year(s)')], string='Recurrency', help="Invoice automatically repeat at specified interval", required=True, default='monthly')
-    recurring_interval          = fields.Integer(string='Repeat Every', help="Repeat every (Days/Week/Month/Year)", required=True, default=1)
-    recurring_next_date         = fields.Date(string='Date of Next Invoice', default=fields.Date.today, help="The next invoice will be created on this date then the period will be extended.")
-    recurring_total             = fields.Float(compute='_compute_recurring_total', string="Recurring Price", store=True)
-    close_reason_id             = fields.Many2one("sale.subscription.close.reason", string="Close Reason")
-    description                 = fields.Text()
-    user_id                     = fields.Many2one('res.users', string='Sales Rep')
-    invoice_ids                 = fields.One2many('account.invoice', 'subcription_id')
-    invoice_count               = fields.Integer(compute='_compute_invoice_count')
-    partner_id                  = fields.Many2one('res.partner', string="Provider")
-    code                        = fields.Char(string='Reference', index=True, default=lambda self: self.env['ir.sequence'].next_by_code('purchase.subscription') or 'New')
-    user_id                     = fields.Many2one('res.users', string="Purchases Rep")
-    company_id                  = fields.Many2one('res.company', string="Company", required="True", default=get_user_company)
-    name                        = fields.Char(string="Contract", required=True, compute="_get_name", store=True)
-
+    state = fields.Selection([('draft', 'New'), ('open', 'In Progress'), ('pending', 'To Renew'), (
+        'close', 'Closed'), ('cancel', 'Cancelled')], string='Status', required=True, copy=False, default='draft')
+    date_start = fields.Date(string='Start Date', default=fields.Date.today)
+    date = fields.Date(
+        string='End Date', help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
+    currency_id = fields.Many2one(
+        'res.currency', related='company_id.currency_id', string='Currency', readonly=True)
+    recurring_invoice_line_ids = fields.One2many(
+        'purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
+    recurring_rule_type = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), (
+        'yearly', 'Year(s)')], string='Recurrency', help="Invoice automatically repeat at specified interval", required=True, default='monthly')
+    recurring_interval = fields.Integer(
+        string='Repeat Every', help="Repeat every (Days/Week/Month/Year)", required=True, default=1)
+    recurring_next_date = fields.Date(string='Date of Next Invoice', default=fields.Date.today,
+                                      help="The next invoice will be created on this date then the period will be extended.")
+    recurring_total = fields.Float(
+        compute='_compute_recurring_total', string="Recurring Price", store=True)
+    close_reason_id = fields.Many2one(
+        "sale.subscription.close.reason", string="Close Reason")
+    description = fields.Text()
+    user_id = fields.Many2one('res.users', string='Sales Rep')
+    invoice_ids = fields.One2many('account.invoice', 'subcription_id')
+    invoice_count = fields.Integer(compute='_compute_invoice_count')
+    partner_id = fields.Many2one('res.partner', string="Provider")
+    code = fields.Char(string='Reference', index=True, default=lambda self: self.env[
+                       'ir.sequence'].next_by_code('purchase.subscription') or 'New')
+    user_id = fields.Many2one('res.users', string="Purchases Rep")
+    company_id = fields.Many2one(
+        'res.company', string="Company", required="True", default=get_user_company)
+    name = fields.Char(string="Contract", required=True,
+                       compute="_get_name", store=True)
 
     @api.depends('code', 'partner_id')
     def _get_name(self):
         for sub in self:
-            sub.name = '%s - %s' % (sub.code, sub.partner_id.name) if sub.code else sub.partner_id.name
+            sub.name = '%s - %s' % (sub.code,
+                                    sub.partner_id.name) if sub.code else sub.partner_id.name
 
     def _track_subtype(self, init_values):
         self.ensure_one()
@@ -59,11 +71,13 @@ class PurchaseSubscription(models.Model):
     @api.depends('recurring_invoice_line_ids')
     def _compute_recurring_total(self):
         for sub in self:
-            sub.recurring_total = sum(line.price_subtotal for line in sub.recurring_invoice_line_ids)
+            sub.recurring_total = sum(
+                line.price_subtotal for line in sub.recurring_invoice_line_ids)
 
     @api.model
     def create(self, vals):
-        vals['code'] = vals.get('code') or self.env.context.get('default_code') or self.env['ir.sequence'].next_by_code('purchase.subscription') or 'New'
+        vals['code'] = vals.get('code') or self.env.context.get('default_code') or self.env[
+            'ir.sequence'].next_by_code('purchase.subscription') or 'New'
         if vals.get('name', 'New') == 'New':
             vals['name'] = vals['code']
         return super(PurchaseSubscription, self).create(vals)
@@ -72,7 +86,8 @@ class PurchaseSubscription(models.Model):
     def name_get(self):
         res = []
         for sub in self:
-            name = '%s - %s' % (sub.code, sub.partner_id.name) if sub.code else sub.partner_id.name
+            name = '%s - %s' % (sub.code,
+                                sub.partner_id.name) if sub.code else sub.partner_id.name
             res.append((sub.id, '%s' % name))
         return res
 
@@ -91,7 +106,8 @@ class PurchaseSubscription(models.Model):
     @api.model
     def cron_purchase_subcription(self):
         today = fields.Date.today()
-        next_month = fields.Date.to_string(fields.Date.from_string(today) + relativedelta(months=1))
+        next_month = fields.Date.to_string(
+            fields.Date.from_string(today) + relativedelta(months=1))
 
         # set to pending if date is in less than a month
         domain_pending = [('date', '<', next_month), ('state', '=', 'open')]
@@ -99,7 +115,8 @@ class PurchaseSubscription(models.Model):
         subscriptions_pending.write({'state': 'pending'})
 
         # set to close if data is passed
-        domain_close = [('date', '<', today), ('state', 'in', ['pending', 'open'])]
+        domain_close = [('date', '<', today),
+                        ('state', 'in', ['pending', 'open'])]
         subscriptions_close = self.search(domain_close)
         subscriptions_close.write({'state': 'close'})
 
@@ -130,16 +147,23 @@ class PurchaseSubscription(models.Model):
         self.ensure_one()
 
         if not self.partner_id:
-            raise UserError(_("You must first select a Customer for Subscription %s!") % self.name)
+            raise UserError(
+                _("You must first select a Customer for Subscription %s!") % self.name)
 
-        fpos_id = self.env['account.fiscal.position'].with_context(force_company=self.company_id.id).get_fiscal_position(self.partner_id.id)
-        journal = self.env['account.journal'].search([('type', '=', 'purchase'), ('company_id', '=', self.company_id.id)], limit=1)
+        fpos_id = self.env['account.fiscal.position'].with_context(
+            force_company=self.company_id.id).get_fiscal_position(self.partner_id.id)
+        journal = self.env['account.journal'].search(
+            [('type', '=', 'purchase'), ('company_id', '=', self.company_id.id)], limit=1)
         if not journal:
-            raise UserError(_('Please define a purchase journal for the company "%s".') % (self.company_id.name or '', ))
+            raise UserError(_('Please define a purchase journal for the company "%s".') % (
+                self.company_id.name or '', ))
 
         next_date = fields.Date.from_string(self.recurring_next_date)
-        periods = {'daily': 'days', 'weekly': 'weeks', 'monthly': 'months', 'yearly': 'years'}
-        new_date = next_date + relativedelta(**{periods[self.recurring_rule_type]: self.recurring_interval})
+        periods = {'daily': 'days', 'weekly': 'weeks',
+                   'monthly': 'months', 'yearly': 'years'}
+        new_date = next_date + \
+            relativedelta(
+                **{periods[self.recurring_rule_type]: self.recurring_interval})
 
         return {
             'account_id': self.partner_id.property_account_payable_id.id,
@@ -162,7 +186,8 @@ class PurchaseSubscription(models.Model):
             account_id = line.product_id.categ_id.property_account_expense_categ_id.id
         account_id = fiscal_position.map_account(account_id)
 
-        tax = line.product_id.supplier_taxes_id.filtered(lambda r: r.company_id == line.p_subscription_id.company_id)
+        tax = line.product_id.supplier_taxes_id.filtered(
+            lambda r: r.company_id == line.p_subscription_id.company_id)
         tax = fiscal_position.map_tax(tax)
         return {
             'name': line.name,
@@ -179,13 +204,15 @@ class PurchaseSubscription(models.Model):
     @api.multi
     def _prepare_invoice_lines(self, fiscal_position):
         self.ensure_one()
-        fiscal_position = self.env['account.fiscal.position'].browse(fiscal_position)
+        fiscal_position = self.env[
+            'account.fiscal.position'].browse(fiscal_position)
         return [(0, 0, self._prepare_invoice_line(line, fiscal_position)) for line in self.recurring_invoice_line_ids]
 
     @api.multi
     def _prepare_invoice(self):
         invoice = self._prepare_invoice_data()
-        invoice['invoice_line_ids'] = self._prepare_invoice_lines(invoice['fiscal_position_id'])
+        invoice['invoice_line_ids'] = self._prepare_invoice_lines(
+            invoice['fiscal_position_id'])
         return invoice
 
     @api.multi
@@ -198,27 +225,35 @@ class PurchaseSubscription(models.Model):
         AccountInvoice = self.env['account.invoice']
         invoices = []
         current_date = fields.Date.today()
-        periods = {'daily': 'days', 'weekly': 'weeks', 'monthly': 'months', 'yearly': 'years'}
-        domain = [('id', 'in', self.ids)] if self.ids else [('recurring_next_date', '<=', current_date), ('state', '=', 'open')]
+        periods = {'daily': 'days', 'weekly': 'weeks',
+                   'monthly': 'months', 'yearly': 'years'}
+        domain = [('id', 'in', self.ids)] if self.ids else [
+            ('recurring_next_date', '<=', current_date), ('state', '=', 'open')]
         sub_data = self.search_read(fields=['id', 'company_id'], domain=domain)
         for company_id in set(data['company_id'][0] for data in sub_data):
-            sub_ids = map(lambda s: s['id'], filter(lambda s: s['company_id'][0] == company_id, sub_data))
-            subs = self.with_context(company_id=company_id, force_company=company_id).browse(sub_ids)
+            sub_ids = map(lambda s: s['id'], filter(
+                lambda s: s['company_id'][0] == company_id, sub_data))
+            subs = self.with_context(
+                company_id=company_id, force_company=company_id).browse(sub_ids)
             for sub in subs:
                 try:
-                    invoices.append(AccountInvoice.create(sub._prepare_invoice()))
+                    invoices.append(AccountInvoice.create(
+                        sub._prepare_invoice()))
                     sub.invoice_ids = [(4, invoices[-1].id, _)]
                     invoices[-1].compute_taxes()
-                    next_date = fields.Date.from_string(sub.recurring_next_date or current_date)
+                    next_date = fields.Date.from_string(
+                        sub.recurring_next_date or current_date)
                     rule, interval = sub.recurring_rule_type, sub.recurring_interval
-                    new_date = next_date + relativedelta(**{periods[rule]: interval})
+                    new_date = next_date + \
+                        relativedelta(**{periods[rule]: interval})
                     sub.write({'recurring_next_date': new_date})
                     if automatic:
                         self.env.cr.commit()
                 except Exception:
                     if automatic:
                         self.env.cr.rollback()
-                        _logger.exception('Fail to create recurring invoice for subscription %s', sub.code)
+                        _logger.exception(
+                            'Fail to create recurring invoice for subscription %s', sub.code)
                     else:
                         raise
         return invoices
@@ -226,16 +261,20 @@ class PurchaseSubscription(models.Model):
     @api.multi
     def increment_period(self):
         for account in self:
-            current_date = account.recurring_next_date or self.default_get(['recurring_next_date'])['recurring_next_date']
-            periods = {'daily': 'days', 'weekly': 'weeks', 'monthly': 'months', 'yearly': 'years'}
-            new_date = fields.Date.from_string(current_date) + relativedelta(**{periods[account.recurring_rule_type]: account.recurring_interval})
+            current_date = account.recurring_next_date or self.default_get(
+                ['recurring_next_date'])['recurring_next_date']
+            periods = {'daily': 'days', 'weekly': 'weeks',
+                       'monthly': 'months', 'yearly': 'years'}
+            new_date = fields.Date.from_string(current_date) + relativedelta(
+                **{periods[account.recurring_rule_type]: account.recurring_interval})
             account.write({'recurring_next_date': new_date})
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         args = args or []
         domain = ['|', ('code', operator, name), ('name', operator, name)]
-        partners = self.env['res.partner'].search([('name', operator, name)], limit=limit)
+        partners = self.env['res.partner'].search(
+            [('name', operator, name)], limit=limit)
         if partners:
             domain = ['|'] + domain + [('partner_id', 'in', partners.ids)]
         rec = self.search(domain + args, limit=limit)
@@ -246,17 +285,24 @@ class PurchaseSubscriptionLine(models.Model):
     _name = "purchase.subscription.line"
     _description = "Purchase Subscription Line"
 
-    product_id          = fields.Many2one('product.product', string='Product', domain="[('recurring_invoice_po','=',True)]", required=True)
-    p_subscription_id   = fields.Many2one('purchase.subscription', string='Subscription')
-    analytic_account_id = fields.Many2one('account.analytic.account', string="Analytic account")
-    name                = fields.Text(string='Description', required=True)
-    quantity            = fields.Float(compute='_compute_quantity', inverse='_set_quantity', string='Quantity', store=True, help="Max between actual and buy quantities; this quantity will be invoiced")
-    actual_quantity     = fields.Float(help="Quantity actually used", default=0.0)
-    buy_quantity        = fields.Float(help="Quantity buy", required=True, default=1)
-    uom_id              = fields.Many2one('product.uom', string='Unit of Measure', required=True)
-    price_unit          = fields.Float(string='Unit Price', required=True)
-    discount            = fields.Float(string='Discount (%)', digits=dp.get_precision('Discount'))
-    price_subtotal      = fields.Float(compute='_compute_price_subtotal', string='Sub Total', digits=dp.get_precision('Account'))
+    product_id = fields.Many2one('product.product', string='Product',
+                                 domain="[('recurring_invoice_po','=',True)]", required=True)
+    p_subscription_id = fields.Many2one(
+        'purchase.subscription', string='Subscription')
+    analytic_account_id = fields.Many2one(
+        'account.analytic.account', string="Analytic account")
+    name = fields.Text(string='Description', required=True)
+    quantity = fields.Float(compute='_compute_quantity', inverse='_set_quantity', string='Quantity',
+                            store=True, help="Max between actual and buy quantities; this quantity will be invoiced")
+    actual_quantity = fields.Float(help="Quantity actually used", default=0.0)
+    buy_quantity = fields.Float(help="Quantity buy", required=True, default=1)
+    uom_id = fields.Many2one(
+        'product.uom', string='Unit of Measure', required=True)
+    price_unit = fields.Float(string='Unit Price', required=True)
+    discount = fields.Float(string='Discount (%)',
+                            digits=dp.get_precision('Discount'))
+    price_subtotal = fields.Float(
+        compute='_compute_price_subtotal', string='Sub Total', digits=dp.get_precision('Account'))
 
     @api.depends('buy_quantity', 'actual_quantity')
     def _compute_quantity(self):
@@ -271,14 +317,16 @@ class PurchaseSubscriptionLine(models.Model):
     @api.depends('price_unit', 'quantity', 'discount')
     def _compute_price_subtotal(self):
         for line in self:
-            line.price_subtotal = line.quantity * line.price_unit * (100.0 - line.discount) / 100.0
+            line.price_subtotal = line.quantity * \
+                line.price_unit * (100.0 - line.discount) / 100.0
 
     @api.onchange('product_id')
     def onchange_product_id(self):
         domain = {}
         contract = self.p_subscription_id
         company_id = contract.company_id.id
-        context = dict(self.env.context, company_id=company_id, force_company=company_id)
+        context = dict(self.env.context, company_id=company_id,
+                       force_company=company_id)
         if not self.product_id:
             self.price_unit = 0.0
         else:
@@ -303,4 +351,3 @@ class SaleSubscriptionCloseReason(models.Model):
 
     name = fields.Char(required=True)
     sequence = fields.Integer(default=10)
-
