@@ -147,7 +147,8 @@
                         	<label for="user_id" string="Purchase Rep"/>
                             <field name="user_id" nolabel="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="currency_id" invisible="1"/>
+                            <field name="currency_id" required="1"/>
+                            <field name="payment_term_id"/>
                             <field name="date_start"/>
                             <field name="date"/>
                         </group>

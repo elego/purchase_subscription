@@ -24,8 +24,8 @@ class PurchaseSubscription(models.Model):
     date_start = fields.Date(string='Start Date', default=fields.Date.today)
     date = fields.Date(
         string='End Date', help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
-    currency_id = fields.Many2one(
-        'res.currency', related='company_id.currency_id', string='Currency', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', 
+                                  compute='get_info_partner', store=True, readonly=False)
     recurring_invoice_line_ids = fields.One2many(
         'purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
     recurring_rule_type = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), (
@@ -50,6 +50,8 @@ class PurchaseSubscription(models.Model):
         'res.company', string="Company", required="True", default=get_user_company)
     name = fields.Char(string="Contract", required=True,
                        compute="_get_name", store=True)
+    payment_term_id = fields.Many2one('account.payment.term', string="Payment term", 
+                                      compute='get_info_partner', store=True, readonly=False)
 
     @api.depends('code', 'partner_id')
     def _get_name(self):
@@ -62,6 +64,23 @@ class PurchaseSubscription(models.Model):
         if 'state' in init_values:
             return 'purchase_subscription.subtype_state_change_purchase'
         return super(PurchaseSubscription, self)._track_subtype(init_values)
+
+    @api.depends('partner_id')
+    def get_info_partner(self):
+        for purchase in self:
+            currency = False
+            payment_term = False
+            if purchase.company_id:
+                currency = purchase.company_id.currency_id
+            if purchase.partner_id:
+                if purchase.partner_id.property_purchase_currency_id:
+                    currency = purchase.partner_id.property_purchase_currency_id
+                elif purchase.partner_id.property_product_pricelist:
+                    currency = purchase.partner_id.property_product_pricelist.currency_id
+                if purchase.partner_id.property_supplier_payment_term_id:
+                    payment_term = purchase.partner_id.property_supplier_payment_term_id
+            purchase.currency_id = currency
+            purchase.payment_term_id = payment_term
 
     @api.multi
     def _compute_invoice_count(self):
@@ -169,12 +188,13 @@ class PurchaseSubscription(models.Model):
             'account_id': self.partner_id.property_account_payable_id.id,
             'type': 'in_invoice',
             'partner_id': self.partner_id.id,
-            'currency_id': self.company_id.currency_id.id,
             'journal_id': journal.id,
             'date_invoice': self.recurring_next_date,
             'origin': self.code,
             'fiscal_position_id': fpos_id,
-            'payment_term_id': self.partner_id.property_supplier_payment_term_id.id,
+            'currency_id': self.currency_id and self.currency_id.id or self.recurring_next_date,
+            'payment_term_id': self.payment_term_id and self.payment_term_id.id 
+                                or self.partner_id.property_supplier_payment_term_id.id,
             'company_id': self.company_id.id,
             'comment': _("This invoice covers the following period: %s - %s") % (next_date, new_date),
         }
@@ -241,6 +261,8 @@ class PurchaseSubscription(models.Model):
                         sub._prepare_invoice()))
                     sub.invoice_ids = [(4, invoices[-1].id, _)]
                     invoices[-1].compute_taxes()
+                    if sub.payment_term_id:
+                        invoices[-1].write({'payment_term_id': sub.payment_term_id.id})
                     next_date = fields.Date.from_string(
                         sub.recurring_next_date or current_date)
                     rule, interval = sub.recurring_rule_type, sub.recurring_interval
