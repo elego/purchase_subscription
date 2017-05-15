@@ -1,3 +1,4 @@
+import res_config
 import product
 import purchase_subscription
 import account_invoice

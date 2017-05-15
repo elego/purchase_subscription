@@ -7,6 +7,7 @@
     'data' : [
                 'data/purchase_contract_data.xml',
                 'security/ir.model.access.csv',
+                'views/res_config_view.xml',
                 'views/product_template_views.xml',
                 'views/res_partner_views.xml',
                 'views/purchase_subscription_views.xml',
