@@ -40,7 +40,7 @@ class PurchaseSubscription(models.Model):
         "sale.subscription.close.reason", string="Close Reason")
     description = fields.Text()
     user_id = fields.Many2one('res.users', string='Sales Rep')
-    invoice_ids = fields.One2many('account.invoice', 'subcription_id')
+    invoice_ids = fields.One2many('account.invoice', 'subscription_id')
     invoice_count = fields.Integer(compute='_compute_invoice_count')
     partner_id = fields.Many2one('res.partner', string="Provider")
     code = fields.Char(string='Reference', index=True, default=lambda self: self.env[

@@ -209,7 +209,7 @@
     </record>
 
     <!-- Menuitems -->
-    <menuitem id="menu_purchase_subscription_root" name="Purchase Subscriptions" sequence="9" web_icon="purchase_subcription,static/description/icon.png" groups="purchase.group_purchase_manager"/>
+    <menuitem id="menu_purchase_subscription_root" name="Purchase Subscriptions" sequence="9" web_icon="purchase_subscription,static/description/icon.png" groups="purchase.group_purchase_manager"/>
 
     <menuitem id="menu_purchase_subscription" name="Purchases Subscriptions" parent="menu_purchase_subscription_root" sequence="5"/>
     <menuitem action="purchase_subscription_action" id="menu_purchase_subscription_action" sequence="1" parent="menu_purchase_subscription"/>
