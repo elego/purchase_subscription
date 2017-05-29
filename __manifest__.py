@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Purchase Subcription',
+    'name': 'Purchase Subscription',
     'installable': True,
     'application': True,
     'depends': ['base', 'account', 'analytic', 'purchase'],

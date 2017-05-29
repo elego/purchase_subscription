@@ -29,8 +29,8 @@ class PurchaseSubscription(models.Model):
     date_start = fields.Date(string='Start Date', default=fields.Date.today)
     date = fields.Date(string='End Date',
                        help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
-    currency_id = fields.Many2one('res.currency', string='Currency', 
-                                  compute='get_info_partner', store=True, readonly=False)
+    currency_id = fields.Many2one('res.currency', string='Currency',
+                                  compute='_compute_get_info_partner', store=True, readonly=False)
     recurring_invoice_line_ids = fields.One2many(
         'purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
     recurring_rule_type = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), (
@@ -45,7 +45,7 @@ class PurchaseSubscription(models.Model):
         "sale.subscription.close.reason", string="Close Reason")
     description = fields.Text()
     user_id = fields.Many2one('res.users', string='Sales Rep')
-    invoice_ids = fields.One2many('account.invoice', 'subcription_id')
+    invoice_ids = fields.One2many('account.invoice', 'subscription_id')
     invoice_count = fields.Integer(compute='_compute_invoice_count')
     partner_id = fields.Many2one('res.partner', string="Provider")
     code = fields.Char(string='Reference', index=True, default=lambda self: self.env[
@@ -54,9 +54,9 @@ class PurchaseSubscription(models.Model):
     company_id = fields.Many2one(
         'res.company', string="Company", required="True", default=get_user_company)
     name = fields.Char(string="Contract", required=True,
-                       compute="_get_name", store=True)
-    payment_term_id = fields.Many2one('account.payment.term', string="Payment term", 
-                                      compute='get_info_partner', store=True, readonly=False)
+                       compute="_compute_get_name", store=True)
+    payment_term_id = fields.Many2one('account.payment.term', string="Payment term",
+                                      compute='_compute_get_info_partner', store=True, readonly=False)
 
     @api.depends('code', 'partner_id')
     def _get_name(self):
@@ -198,7 +198,7 @@ class PurchaseSubscription(models.Model):
             'origin': self.code,
             'fiscal_position_id': fpos_id,
             'currency_id': self.currency_id and self.currency_id.id or self.recurring_next_date,
-            'payment_term_id': self.payment_term_id and self.payment_term_id.id 
+            'payment_term_id': self.payment_term_id and self.payment_term_id.id
                                 or self.partner_id.property_supplier_payment_term_id.id,
             'company_id': self.company_id.id,
             'comment': _("This invoice covers the following period: %s - %s") % (next_date, new_date),

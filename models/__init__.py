@@ -1,4 +1,4 @@
+import account_invoice
 import product
 import purchase_subscription
-import account_invoice
 import res_partner
