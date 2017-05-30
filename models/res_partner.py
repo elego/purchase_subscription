@@ -10,12 +10,14 @@ class ResPartner(models.Model):
 
     @api.multi
     def _po_subscription_count(self):
+        """ Compute the  number of subscription(s) """
         for partner in self:
             partner.po_subscription_count = self.env[
                 'purchase.subscription'].search_count([('partner_id', "=", partner.id)])
 
     @api.multi
     def purchase_subscription_action_res_partner(self):
+        """  """
         for partner in self:
             return {
                 "type": "ir.actions.act_window",

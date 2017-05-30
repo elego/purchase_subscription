@@ -17,6 +17,7 @@ class PurchaseSubscription(models.Model):
 
     @api.model
     def get_user_company(self):
+        """ Get the company of the user """
         return self.env.user.company_id.id
 
     state = fields.Selection([('draft', 'New'),
@@ -60,11 +61,13 @@ class PurchaseSubscription(models.Model):
 
     @api.depends('code', 'partner_id')
     def _get_name(self):
+        """ Get the name of the subscription : reference - provider """
         for sub in self:
             sub.name = '%s - %s' % (sub.code,
                                     sub.partner_id.name) if sub.code else sub.partner_id.name
 
     def _track_subtype(self, init_values):
+        """  """
         self.ensure_one()
         if 'state' in init_values:
             return 'purchase_subscription.subtype_state_change_purchase'
@@ -72,6 +75,7 @@ class PurchaseSubscription(models.Model):
 
     @api.depends('partner_id')
     def get_info_partner(self):
+        """ Get all the information about the partner """
         for purchase in self:
             currency = False
             payment_term = False
@@ -89,17 +93,20 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def _compute_invoice_count(self):
+        """ Compute the number of invoices """
         for sub in self:
             sub.invoice_count = len(sub.invoice_ids)
 
     @api.depends('recurring_invoice_line_ids')
     def _compute_recurring_total(self):
+        """ Compute the reccuring price of the subscription """
         for sub in self:
             sub.recurring_total = sum(
                 line.price_subtotal for line in sub.recurring_invoice_line_ids)
 
     @api.model
     def create(self, vals):
+        """ Create the reference of the subscription """
         vals['code'] = vals.get('code') or self.env.context.get('default_code') or self.env[
             'ir.sequence'].next_by_code('purchase.subscription') or 'New'
         if vals.get('name', 'New') == 'New':
@@ -108,6 +115,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def name_get(self):
+        """ Get the name of the subscription : reference - provider """
         res = []
         for sub in self:
             name = '%s - %s' % (sub.code,
@@ -117,6 +125,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def action_subscription_invoice(self):
+        """ Show the invoices views """
         return {
             "type": "ir.actions.act_window",
             "res_model": "account.invoice",
@@ -129,6 +138,7 @@ class PurchaseSubscription(models.Model):
 
     @api.model
     def cron_purchase_subscription(self):
+        """ Compute the end of the subscription """
         today = fields.Date.today()
         next_month = fields.Date.to_string(
             fields.Date.from_string(today) + relativedelta(months=1))
@@ -148,34 +158,42 @@ class PurchaseSubscription(models.Model):
 
     @api.model
     def _cron_recurring_create_invoice(self):
+        """ If subscribed, create an invoice """
         return self._recurring_create_invoice(automatic=True)
 
     @api.multi
     def set_open(self):
+        """ Set the subscription status to 'open' """
         return self.write({'state': 'open'})
 
     @api.multi
     def set_pending(self):
+        """ Set the subscription status to 'pending' """
         return self.write({'state': 'pending'})
 
     @api.multi
     def set_cancel(self):
+        """ Set the subscription status to 'cancel' """
         return self.write({'state': 'cancel'})
 
     @api.multi
     def set_close(self):
+        """ Set the subscription status to 'close' """
         return self.write({'state': 'close', 'date': fields.Date.from_string(fields.Date.today())})
 
     @api.multi
     def _prepare_invoice_data(self):
+        """ Prepare the data of the invoice """
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError(
                 _("You must first select a Customer for Subscription %s!") % self.name)
 
+        """ Get the fiscal position of the company """
         fpos_id = self.env['account.fiscal.position'].with_context(
             force_company=self.company_id.id).get_fiscal_position(self.partner_id.id)
+        """ Get the purchase journal of the company """
         journal = self.env['account.journal'].search(
             [('type', '=', 'purchase'), ('company_id', '=', self.company_id.id)], limit=1)
         if not journal:
@@ -206,6 +224,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def _prepare_invoice_line(self, line, fiscal_position):
+        """ Prepare the invoice line """
         account_id = line.product_id.property_account_expense_id.id
         if not account_id:
             account_id = line.product_id.categ_id.property_account_expense_categ_id.id
@@ -228,6 +247,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def _prepare_invoice_lines(self, fiscal_position):
+        """ Prepare the invoice lines """
         self.ensure_one()
         fiscal_position = self.env[
             'account.fiscal.position'].browse(fiscal_position)
@@ -235,6 +255,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def _prepare_invoice(self):
+        """ Prepare the invoice """
         invoice = self._prepare_invoice_data()
         invoice['invoice_line_ids'] = self._prepare_invoice_lines(
             invoice['fiscal_position_id'])
@@ -242,6 +263,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def recurring_invoice(self):
+        """ Reccuring the invoice """
         self._recurring_create_invoice()
         return self.action_subscription_invoice()
 
@@ -287,6 +309,7 @@ class PurchaseSubscription(models.Model):
 
     @api.multi
     def increment_period(self):
+        """ Get the date of the next occurrence """
         for account in self:
             current_date = account.recurring_next_date or self.default_get(
                 ['recurring_next_date'])['recurring_next_date']
@@ -298,6 +321,7 @@ class PurchaseSubscription(models.Model):
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
+        """ Search the name of a partner in the subscription list """
         args = args or []
         domain = ['|', ('code', operator, name), ('name', operator, name)]
         partners = self.env['res.partner'].search(
@@ -333,22 +357,26 @@ class PurchaseSubscriptionLine(models.Model):
 
     @api.depends('buy_quantity', 'actual_quantity')
     def _compute_quantity(self):
+        """ Compute the quantity of item in the line """
         for line in self:
             line.quantity = max(line.buy_quantity, line.actual_quantity)
 
     @api.multi
     def _set_quantity(self):
+        """ Set the actual quantity of the line """
         for line in self:
             line.actual_quantity = line.quantity
 
     @api.depends('price_unit', 'quantity', 'discount')
     def _compute_price_subtotal(self):
+        """ Compute the subtotal price """
         for line in self:
             line.price_subtotal = line.quantity * \
                 line.price_unit * (100.0 - line.discount) / 100.0
 
     @api.onchange('product_id')
     def onchange_product_id(self):
+        """ Used when the product is modified, change the caracteristics of the product """
         domain = {}
         contract = self.p_subscription_id
         company_id = contract.company_id.id
