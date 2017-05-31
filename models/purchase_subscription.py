@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
-import logging
 from dateutil.relativedelta import relativedelta
-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
-
 import odoo.addons.decimal_precision as dp
-
-_logger = logging.getLogger(__name__)
-
 
 class PurchaseSubscription(models.Model):
     _name = "purchase.subscription"
@@ -31,7 +25,7 @@ class PurchaseSubscription(models.Model):
     date = fields.Date(string='End Date',
                        help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
     currency_id = fields.Many2one('res.currency', string='Currency',
-                                  compute='_compute_get_info_partner', store=True, readonly=False)
+                                  compute='get_info_partner', store=True, readonly=False)
     recurring_invoice_line_ids = fields.One2many(
         'purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
     recurring_rule_type = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), (
@@ -48,7 +42,7 @@ class PurchaseSubscription(models.Model):
     user_id = fields.Many2one('res.users', string='Sales Rep')
     invoice_ids = fields.One2many('account.invoice', 'subscription_id')
     invoice_count = fields.Integer(compute='_compute_invoice_count')
-    partner_id = fields.Many2one('res.partner', string="Provider")
+    partner_id = fields.Many2one('res.partner', string="Provider", domain="[('supplier', '=', True)]")
     code = fields.Char(string='Reference', index=True, default=lambda self: self.env[
                        'ir.sequence'].next_by_code('purchase.subscription') or 'New')
     user_id = fields.Many2one('res.users', string="Purchases Rep")
@@ -57,7 +51,7 @@ class PurchaseSubscription(models.Model):
     name = fields.Char(string="Contract", required=True,
                        compute="_compute_get_name", store=True)
     payment_term_id = fields.Many2one('account.payment.term', string="Payment term",
-                                      compute='_compute_get_info_partner', store=True, readonly=False)
+                                      compute='get_info_partner', store=True, readonly=False)
 
     @api.depends('code', 'partner_id')
     def _get_name(self):
@@ -67,7 +61,7 @@ class PurchaseSubscription(models.Model):
                                     sub.partner_id.name) if sub.code else sub.partner_id.name
 
     def _track_subtype(self, init_values):
-        """  """
+        """ return the subtype state when found in init_values """
         self.ensure_one()
         if 'state' in init_values:
             return 'purchase_subscription.subtype_state_change_purchase'

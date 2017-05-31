@@ -17,7 +17,7 @@ class ResPartner(models.Model):
 
     @api.multi
     def purchase_subscription_action_res_partner(self):
-        """  """
+        """ Action on click on the stat button in partner form """
         for partner in self:
             return {
                 "type": "ir.actions.act_window",

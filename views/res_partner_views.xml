@@ -14,7 +14,7 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button class="oe_stat_button" type="object" name="purchase_subscription_action_res_partner" icon="fa-book">
-                    <field name="po_subscription_count" string="Subscriptions" widget="statinfo"/>
+                    <field name="po_subscription_count" string="Purchase Subs" widget="statinfo"/>
                 </button>
             </xpath>
         </field>
