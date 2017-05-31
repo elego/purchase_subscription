@@ -12,10 +12,11 @@
         'views/purchase_subscription_views.xml',
     ],
     'author': 'sudokeys',
-    'description': """
-        Ce module permet de déclencher une facturation fournisseur récurrente :
-            - loyer
-            - Abonnement téléphonique / internet
-            - Tout autre paiement régulier donnant lieu à une facture founisseur de façon récurente
+    'description':
+    """
+        This module is used to trigger a recurrency provider invoice :
+            - rent
+            - Telephone/ internet subscription
+            - Any other regular payment that needs a recurrent invoice.
     """
 }
