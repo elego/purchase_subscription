@@ -209,7 +209,7 @@ class PurchaseSubscription(models.Model):
             'date_invoice': self.recurring_next_date,
             'origin': self.code,
             'fiscal_position_id': fpos_id,
-            'currency_id': self.currency_id and self.currency_id.id or self.recurring_next_date,
+            'currency_id': self.currency_id and self.currency_id.id or False,
             'payment_term_id': self.payment_term_id and self.payment_term_id.id
                                 or self.partner_id.property_supplier_payment_term_id.id,
             'company_id': self.company_id.id,
