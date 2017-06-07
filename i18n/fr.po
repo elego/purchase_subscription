@@ -347,17 +347,17 @@ msgstr "Responsable d'achat"
 #: model:ir.model.fields,field_description:purchase_subscription.field_product_product_recurring_invoice_po
 #: model:ir.model.fields,field_description:purchase_subscription.field_product_template_recurring_invoice_po
 msgid "Purchase Subscription"
-msgstr "Achat d'abonnement"
+msgstr "Abonnement d'achat"
 
 #. module: purchase_subscription
 #: model:ir.model,name:purchase_subscription.model_purchase_subscription_line
 msgid "Purchase Subscription Line"
-msgstr "Ligne d'achat d'abonnement"
+msgstr "Ligne d'abonnement d'achat"
 
 #. module: purchase_subscription
 #: model:ir.ui.view,arch_db:purchase_subscription.product_template_search_view_inherit_purchase_subscription
 msgid "Purchase Subscription products"
-msgstr "Articles d'achat d'abonnement"
+msgstr "Articles d'abonnement d'achat"
 
 #. module: purchase_subscription
 #: model:ir.actions.act_window,name:purchase_subscription.purchase_subscription_action
@@ -368,7 +368,7 @@ msgstr "Articles d'achat d'abonnement"
 #: model:ir.ui.view,arch_db:purchase_subscription.purchase_subscription_view_graph
 #: model:ir.ui.view,arch_db:purchase_subscription.purchase_subscription_view_list
 msgid "Purchase Subscriptions"
-msgstr "Achat d'Abonnement"
+msgstr "Abonnements d'achat"
 
 #. module: purchase_subscription
 #: model:ir.model.fields,field_description:purchase_subscription.field_account_invoice_subscription_id
@@ -383,7 +383,7 @@ msgstr "Responsable des achats"
 #. module: purchase_subscription
 #: model:ir.ui.menu,name:purchase_subscription.menu_purchase_subscription
 msgid "Purchases Subscriptions"
-msgstr "Achats d'abonnements"
+msgstr "Abonnements d'achat"
 
 #. module: purchase_subscription
 #: model:ir.model.fields,field_description:purchase_subscription.field_purchase_subscription_line_quantity
