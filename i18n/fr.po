@@ -309,7 +309,7 @@ msgstr "Partenaire"
 #. module: purchase_subscription
 #: model:ir.model.fields,field_description:purchase_subscription.field_purchase_subscription_payment_term_id
 msgid "Payment term"
-msgstr "Terme de paiement"
+msgstr "Conditions de paiement"
 
 #. module: purchase_subscription
 #: model:ir.ui.view,arch_db:purchase_subscription.purchase_subscription_view_search
