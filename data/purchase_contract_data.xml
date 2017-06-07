@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding='UTF-8'?>
 <odoo>
-    <record model="ir.cron" id="purchase_subscription_cron">
+    <record id="purchase_subscription_cron" model="ir.cron">
         <field name="name">Purchases Subscriptions Expiration</field>
         <field name="interval_number">1</field>
         <field name="interval_type">weeks</field>
@@ -11,7 +11,7 @@
         <field name="args" eval="'()'" />
     </record>
 
-    <record model="ir.cron" id="purchase_subscription_cron_for_invoice">
+    <record id="purchase_subscription_cron_for_invoice" model="ir.cron">
        <field name="name">Generate Recurring Invoices and Payments for Purchase Subscription</field>
        <field name="interval_number">1</field>
        <field name="interval_type">days</field>
