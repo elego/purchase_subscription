@@ -205,10 +205,12 @@ class PurchaseSubscription(models.Model):
         if not account_id:
             account_id = line.product_id.categ_id.property_account_expense_categ_id.id
         account_id = fiscal_position.map_account(account_id)
-
-        tax = line.product_id.supplier_taxes_id.filtered(
-            lambda r: r.company_id == line.p_subscription_id.company_id)
-        tax = fiscal_position.map_tax(tax)
+        
+        tax = line.taxes_id
+        if not tax:
+            tax = line.product_id.supplier_taxes_id.filtered(
+                lambda r: r.company_id == line.p_subscription_id.company_id)
+            tax = fiscal_position.map_tax(tax)
         return {
             'name': line.name,
             'account_id': account_id,
