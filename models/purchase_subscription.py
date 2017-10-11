@@ -3,6 +3,8 @@ from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import odoo.addons.decimal_precision as dp
+import logging
+_logger = logging.getLogger(__name__)
 
 class PurchaseSubscription(models.Model):
     _name = "purchase.subscription"
