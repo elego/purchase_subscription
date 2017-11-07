@@ -11,6 +11,7 @@
                 'views/res_partner_views.xml',
                 'views/purchase_subscription_views.xml',
                 'views/res_config_view.xml',
+                'security/ir.rules.xml',
              ],
     'author' : 'sudokeys',
     'description': """
