@@ -3,7 +3,7 @@
 <data noupdate="1">
     <record id="purchase_subscription_rule" model="ir.rule">
         <field name="name">Account Entry</field>
-        <field name="model_id" ref="purchase_subscription"/>
+        <field name="model_id" ref="model_purchase_subscription"/>
         <field name="global" eval="True"/>
         <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
     </record>
