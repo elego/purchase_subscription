@@ -2,8 +2,8 @@
 This project is a module  for Odoo 10.0 (enterprise version)
 
 ## Description
-This module is used to manage subscription as a provider:
-- Create subscription such as rent, telephone and internet subscription and all other regular payment that needs recurrent invoice.
+This module is used to manage provider's subscriptions:
+- Create subscription such as rent, phone bill and internet subscription and all other regular payments that needs recurrent provider's invoices.
 - Define how often you need to create invoices and the duration of the subscription.
 - Invoices are automatically generated and already defined on the right period of time, depending on the previous invoice or the start date if it's the first invoice.
 
