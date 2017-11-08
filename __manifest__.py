@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
     'name': 'Purchase Subscription',
+    'summary': "An easy way to manage your provider's subscriptions.",
     'installable': True,
     'application': True,
+    'licence' : "AGPL-3",
     'depends': ['base', 'account', 'analytic', 'purchase'],
     'data': [
         'data/purchase_contract_data.xml',
