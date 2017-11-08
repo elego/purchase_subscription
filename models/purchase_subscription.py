@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# © 2014 - 2017 Sudokeys (Nicolas Potier <nicolas.potier@sudokeys.com>)
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
+
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -38,8 +41,6 @@ class PurchaseSubscription(models.Model):
                                       help="The next invoice will be created on this date then the period will be extended.")
     recurring_total = fields.Float(
         compute='_compute_recurring_total', string="Recurring Price", store=True)
-    close_reason_id = fields.Many2one(
-        "sale.subscription.close.reason", string="Close Reason")
     description = fields.Text()
     user_id = fields.Many2one('res.users', string='Sales Rep')
     invoice_ids = fields.One2many('account.invoice', 'subscription_id')
@@ -102,7 +103,7 @@ class PurchaseSubscription(models.Model):
 
     @api.model
     def create(self, vals):
-        """ Create the reference of the subscription """
+        """ Set the reference of the subscription before creation """
         vals['code'] = vals.get('code') or self.env.context.get('default_code') or self.env[
             'ir.sequence'].next_by_code('purchase.subscription') or 'New'
         if vals.get('name', 'New') == 'New':
@@ -144,7 +145,7 @@ class PurchaseSubscription(models.Model):
         subscriptions_pending = self.search(domain_pending)
         subscriptions_pending.write({'state': 'pending'})
 
-        # set to close if data is passed
+        # set to close if date is passed
         domain_close = [('date', '<', today),
                         ('state', 'in', ['pending', 'open'])]
         subscriptions_close = self.search(domain_close)
@@ -392,13 +393,4 @@ class PurchaseSubscriptionLine(models.Model):
             name = product.display_name
             if product.description_purchase:
                 name += '\n' + product.description_purchase
-            self.name = name
-
-
-class SaleSubscriptionCloseReason(models.Model):
-    _name = "sale.subscription.close.reason"
-    _order = "sequence, id"
-    _description = "Susbcription Close Reason"
-
-    name = fields.Char(required=True)
-    sequence = fields.Integer(default=10)
+            self.name = nameFclose

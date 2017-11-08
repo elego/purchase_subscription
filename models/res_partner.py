@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# © 2014 - 2017 Sudokeys (Nicolas Potier <nicolas.potier@sudokeys.com>)
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 
 
