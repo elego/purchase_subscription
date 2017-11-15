@@ -29,8 +29,7 @@ class PurchaseSubscription(models.Model):
     date_start = fields.Date(string='Start Date', default=fields.Date.today)
     date = fields.Date(string='End Date',
                        help="If set in advance, the subscription will be set to pending 1 month before the date and will be closed on the date set in this field.")
-    currency_id = fields.Many2one('res.currency', string='Currency',
-                                  compute='get_info_partner', store=True, readonly=False)
+    currency_id = fields.Many2one(comodel_name='res.currency', string='Currency')
     recurring_invoice_line_ids = fields.One2many(
         'purchase.subscription.line', 'p_subscription_id', string='Invoice Lines', copy=True)
     recurring_rule_type = fields.Selection([('daily', 'Day(s)'), ('weekly', 'Week(s)'), ('monthly', 'Month(s)'), (
@@ -53,8 +52,7 @@ class PurchaseSubscription(models.Model):
         'res.company', string="Company", required="True", default=get_user_company)
     name = fields.Char(string="Contract", required=True,
                        compute="_compute_get_name", store=True)
-    payment_term_id = fields.Many2one('account.payment.term', string="Payment term",
-                                      compute='get_info_partner', store=True, readonly=False)
+    payment_term_id = fields.Many2one(comodel_name='account.payment.term', string="Payment term")
 
     @api.depends('code', 'partner_id')
     def _get_name(self):
@@ -70,7 +68,7 @@ class PurchaseSubscription(models.Model):
             return 'purchase_subscription.subtype_state_change_purchase'
         return super(PurchaseSubscription, self)._track_subtype(init_values)
 
-    @api.depends('partner_id')
+    @api.onchange('partner_id')
     def get_info_partner(self):
         """ Get all the information about the partner """
         for purchase in self:
@@ -393,4 +391,4 @@ class PurchaseSubscriptionLine(models.Model):
             name = product.display_name
             if product.description_purchase:
                 name += '\n' + product.description_purchase
-            self.name = nameFclose
+            self.name = name
