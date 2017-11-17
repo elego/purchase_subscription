@@ -14,7 +14,7 @@
         'views/res_partner_views.xml',
         'views/purchase_subscription_views.xml',
     ],
-    'author': 'sudokeys',
+    'author': 'Sudokeys',
     'description':
     """
         This module is used to trigger a recurrency provider invoice :
