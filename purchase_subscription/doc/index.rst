@@ -1,7 +1,7 @@
 Purchase subscription
 =====================
 
-This project is a module for Odoo 10.0 (enterprise version)
+This project is a module for Odoo 10.0
 
 Description
 -----------
@@ -26,8 +26,4 @@ Contact
 -------
 
 -  Homepage: http://sudokeys.com
-
-.. raw:: html
-
-   <a href="http://sudokeys.com"><img src="../static/description/logoSDK.jpg" width="300" height="110"></a>
 
