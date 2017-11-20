@@ -3,6 +3,7 @@
 {
     'name': 'Purchase Subscription',
     'summary': "An easy way to manage your provider's subscriptions.",
+    'category': 'Purchases',
     'installable': True,
     'application': True,
     'license' : 'AGPL-3',
