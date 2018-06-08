@@ -4,7 +4,7 @@
     'name': 'Purchase Subscription',
     'summary': "An easy way to manage your provider's subscriptions.",
     'category': 'Purchases',
-    'installable': False,
+    'installable': True,
     'application': True,
     'license' : 'AGPL-3',
     'depends': ['base', 'account', 'analytic', 'purchase'],
