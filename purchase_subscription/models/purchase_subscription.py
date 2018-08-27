@@ -220,10 +220,10 @@ class PurchaseSubscription(models.Model):
     @api.multi
     def _prepare_invoice_line(self, line, fiscal_position):
         """ Prepare the invoice line """
-        account_id = line.product_id.property_account_expense_id.id
+        account_id = line.product_id.property_account_expense_id
         if not account_id:
-            account_id = line.product_id.categ_id.property_account_expense_categ_id.id
-        account_id = fiscal_position.map_account(account_id)
+            account_id = line.product_id.categ_id.property_account_expense_categ_id
+        account_id = fiscal_position.map_account(account_id).id
 
         tax = line.product_id.supplier_taxes_id.filtered(
             lambda r: r.company_id == line.p_subscription_id.company_id)
