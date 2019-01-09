@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # © 2014 - 2017 Sudokeys (Nicolas Potier <nicolas.potier@sudokeys.com>)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
@@ -273,8 +272,7 @@ class PurchaseSubscription(models.Model):
             ('recurring_next_date', '<=', current_date), ('state', '=', 'open')]
         sub_data = self.search_read(fields=['id', 'company_id'], domain=domain)
         for company_id in set(data['company_id'][0] for data in sub_data):
-            sub_ids = map(lambda s: s['id'], filter(
-                lambda s: s['company_id'][0] == company_id, sub_data))
+            sub_ids = [s['id'] for s in [s for s in sub_data if s['company_id'][0] == company_id]]
             subs = self.with_context(
                 company_id=company_id, force_company=company_id).browse(sub_ids)
             for sub in subs:
