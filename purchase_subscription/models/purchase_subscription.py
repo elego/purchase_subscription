@@ -341,7 +341,7 @@ class PurchaseSubscriptionLine(models.Model):
     actual_quantity = fields.Float(help="Quantity actually used", default=0.0)
     buy_quantity = fields.Float(help="Quantity buy", required=True, default=1)
     uom_id = fields.Many2one(
-        'product.uom', string='Unit of Measure', required=True)
+        'uom.uom', string='Unit of Measure', required=True)
     price_unit = fields.Float(string='Unit Price', required=True)
     discount = fields.Float(string='Discount (%)',
                             digits=dp.get_precision('Discount'))
