@@ -52,6 +52,11 @@ class PurchaseSubscription(models.Model):
     name = fields.Char(string="Contract", required=True,
                        compute="_compute_get_name", store=True)
     payment_term_id = fields.Many2one(comodel_name='account.payment.term', string="Payment term")
+    attachment = fields.Binary(
+        string='Attachment',
+        attachment=True,
+    )
+    filename = fields.Char('File Name')
 
     @api.depends('code', 'partner_id')
     def _get_name(self):

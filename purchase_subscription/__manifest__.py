@@ -13,12 +13,13 @@
         'views/product_template_views.xml',
         'views/res_partner_views.xml',
         'views/purchase_subscription_views.xml',
+        'views/account_invoice_views.xml',
     ],
     'author': 'Sudokeys',
     'description':
     """
         This module is used to trigger a recurrency provider invoice :
-            - rent
+            - Rent
             - Telephone/ internet subscription
             - Any other regular payment that needs a recurrent invoice.
     """
