@@ -477,7 +477,7 @@ msgstr "Abonnements d'achat"
 #. module: purchase_subscription
 #: model:ir.model.fields,field_description:purchase_subscription.field_account_invoice__subscription_id
 msgid "Purchase subscription"
-msgstr "Achat d'abonnement"
+msgstr "Abonnement d'achat"
 
 #. module: purchase_subscription
 #: model:ir.model.fields,field_description:purchase_subscription.field_purchase_subscription__user_id
