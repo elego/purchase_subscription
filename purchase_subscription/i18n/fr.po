@@ -309,7 +309,7 @@ msgstr "Est un abonné"
 #: model:ir.model.fields,field_description:purchase_subscription.field_purchase_subscription____last_update
 #: model:ir.model.fields,field_description:purchase_subscription.field_purchase_subscription_line____last_update
 msgid "Last Modified on"
-msgstr "Dernière Modification le"
+msgstr "Dernière modification le"
 
 #. module: purchase_subscription
 #: model:ir.model.fields,field_description:purchase_subscription.field_purchase_subscription__write_uid
