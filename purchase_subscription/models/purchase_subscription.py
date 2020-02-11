@@ -212,6 +212,7 @@ class PurchaseSubscription(models.Model):
             'partner_id': self.partner_id.id,
             'journal_id': journal.id,
             'date_invoice': self.recurring_next_date,
+            'date_due': self._get_due_date(),
             'origin': self.code,
             'fiscal_position_id': fpos_id,
             'currency_id': self.currency_id and self.currency_id.id or False,
@@ -220,6 +221,21 @@ class PurchaseSubscription(models.Model):
             'company_id': self.company_id.id,
             'comment': _("This invoice covers the following period: %s - %s") % (next_date, new_date),
         }
+
+    @api.multi
+    def _get_due_date(self):
+        def is_balance(l):
+            return l.value=='balance'
+
+        if not self.payment_term_id:
+            return False
+        b_line = self.payment_term_id.line_ids.filtered(is_balance)
+        if b_line:
+            res = self.recurring_next_date + relativedelta(days=b_line.days)
+        else:
+            res = False
+        return res
+        
 
     @api.multi
     def _prepare_invoice_line(self, line, fiscal_position):
